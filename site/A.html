@@ -1,11 +1,69 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Cock</title>
-    </head>
 
-    <body>
-        <p>COMING SOON</p>
-    </body>
+<head>
+  <title>крестики нолики</title>
+  <script type="text/javascript" language="javascript">
+    function ShowImage(id) {
+
+if (document.getElementById("flag").title == "false") {
+document.getElementById(id).setAttribute("style", "background: url(http://anonymousglobal.org/commanderx/blog/wp-content/uploads/2014/12/redX2.png);background-size: 50px 50px;");
+document.getElementById("flag").title = "true";
+} else {
+document.getElementById(id).setAttribute("style", "background: url(https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Classic_alphabet_numbers_0_at_coloring-pages-for-kids-boys-dotcom.svg/220px-Classic_alphabet_numbers_0_at_coloring-pages-for-kids-boys-dotcom.svg.png);background-size: 50px 50px;");
+document.getElementById("flag").title = "false";
+}
+}
+
+function CreateTable() {
+document.getElementById("tab").innerHTML = '';
+var size = document.getElementById("size").value;
+if (size > 0 && size < 41) {
+var table = document.getElementById("tab");
+for (var i = 0; i < size; i++) {
+ var row = table.insertRow(i);
+ for (var j = 0; j < size; j++) {
+   var cell1 = row.insertCell(j);
+   cell1.setAttribute("id", i+ "" + j)
+   cell1.addEventListener("click", function(){                      ShowImage(this.getAttribute('id'))
+   })
+   
+ }
+}
+} else {
+alert("input number between 1 and 10");
+}
+}
+</script>
+<style type='text/css'>
+td {
+    border: 2px solid #000000;
+    padding: 2px;
+    background-size: 25px 25px;
+  }
+  table {
+  margin: 0 auto;
+  width: 800px;
+  max-width: 3600px;
+  min-width: 200px;
+  height: 800px;
+  max-height: 4800px;
+  min-height: 200px;
+}
+</style>
+</head>
+
+<body>
+    
+
+  <b>Введите размер таблицы.</b>
+  <br>
+  <INPUT TYPE=Text NAME="Info" id='size' />
+  <INPUT TYPE=BUTTON ONCLICK="CreateTable();" VALUE="Создать" />
+  <div id="flag" title = "false"></div>
+  <table id="tab">
+
+  </table> 
+</body>
+
 </html>
