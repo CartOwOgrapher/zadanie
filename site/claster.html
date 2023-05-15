@@ -3,14 +3,16 @@
 <head>
     <title>Алгоритм кластеризации</title>
     <style>
-        #plane {
+        #plane 
+        {
             width: 500px;
             height: 500px;
             border: 1px solid black;
             position: relative;
         }
 
-        .dot {
+        .dot 
+        {
             width: 10px;
             height: 10px;
             background-color: black;
@@ -19,7 +21,8 @@
             cursor: pointer;
         }
 
-        #cluster-btn {
+        #cluster-btn 
+        {
             margin-top: 20px;
             padding: 10px;
             background-color: blue;
@@ -27,146 +30,154 @@
             cursor: pointer;
         }
 
-        #clear-btn {
+        #clear-btn 
+        {
             margin-top: 20px;
             padding: 10px;
             background-color: red;
             color: white;
             cursor: pointer;
         }
-        #cluster-btn:hover {
-    background-color: darkblue;
-}
-        #cluster-btn:active {
-          background-color: lightblue;
-}
-        #clear-btn:hover {
-          background-color: darkred;
+        #cluster-btn:hover 
+        {
+            background-color: darkblue;
         }
-        #clear-btn:active {
-          background-color: lightcoral;
+        #cluster-btn:active 
+        {
+            background-color: lightblue;
+        }
+        #clear-btn:hover 
+        {
+            background-color: darkred;
+        }
+        #clear-btn:active 
+        {
+            background-color: lightcoral;
         }
     </style>
 </head>
 <body>
-<div id="plane"></div>
-<label for="cluster-input">Количество кластеров:</label>
-<input type="number" id="cluster-input" min="1" max="10" value="1">
-<button id="cluster-btn">Кластеризовать</button>
-<button id="clear-btn">Удалить все точки</button>
-<script>
-    const plane = document.getElementById('plane');
-    const clusterBtn = document.getElementById('cluster-btn');
-    const clusterInput = document.getElementById('cluster-input');
-    let dots = [];
-
-    plane.addEventListener('click', function (event) {
-    const dot = document.createElement('div');
-    dot.className = 'dot';
-    dot.style.left = event.offsetX + 'px';
-    dot.style.top = event.offsetY + 'px';
-    plane.appendChild(dot);
-    dots.push([event.offsetX, event.offsetY]);
-    plane.querySelectorAll('.dot').forEach(dot => dot.style.backgroundColor = 'black');
-});
-
-const clearBtn = document.getElementById('clear-btn');
-clearBtn.addEventListener('click', function () {
-    // Удаление всех точек
-    plane.querySelectorAll('.dot').forEach(dot => dot.remove());
-    dots = [];
-});
-      clusterBtn.addEventListener('click', function () {
-        const k = parseInt(clusterInput.value);
-        const { clusters, centroids } = kMeansClustering(dots, k);
-
-        // раскраска кластеров
-        const colors = ['red', 'green', 'purple', 'yellow', 'blue', 'black', 'grey', 'orange', 'brown', 'pink'];
-        for (let i = 0; i < k; i++) {
-            for (let j = 0; j < clusters[i].length; j++) {
-                const dot = plane.children[dots.indexOf(clusters[i][j])];
-                dot.style.backgroundColor = colors[i];
+    <div id="plane"></div>
+    <label for="cluster-input">Количество кластеров:</label>
+    <input type="number" id="cluster-input" min="1" max="10" value="1">
+    <button id="cluster-btn">Кластеризовать</button>
+    <button id="clear-btn">Удалить все точки</button>
+    <script>
+        const plane = document.getElementById('plane');
+        const clusterBtn = document.getElementById('cluster-btn');
+        const clusterInput = document.getElementById('cluster-input');
+        let dots = [];
+        plane.addEventListener('click', function (event) 
+        {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            dot.style.left = event.offsetX + 'px';
+            dot.style.top = event.offsetY + 'px';
+            plane.appendChild(dot);
+            dots.push([event.offsetX, event.offsetY]);
+            plane.querySelectorAll('.dot').forEach(dot => dot.style.backgroundColor = 'black');
+        });
+        const clearBtn = document.getElementById('clear-btn');
+        clearBtn.addEventListener('click', function () 
+        {
+            plane.querySelectorAll('.dot').forEach(dot => dot.remove());
+            dots = [];
+        });
+        clusterBtn.addEventListener('click', function () 
+        {
+            const k = parseInt(clusterInput.value);
+            const { clusters, centroids } = kMeansClustering(dots, k);
+            const colors = ['red', 'green', 'purple', 'yellow', 'blue', 'black', 'grey', 'orange', 'brown', 'pink'];
+            for (let i = 0; i < k; i++) 
+            {
+                for (let j = 0; j < clusters[i].length; j++) 
+                {
+                    const dot = plane.children[dots.indexOf(clusters[i][j])];
+                    dot.style.backgroundColor = colors[i];
+                }
             }
-        }
-    });
-
-    function kMeansClustering(dots, k) {
-        // инициализация центроидов
-        let centroids = [];
-        for (let i = 0; i < k; i++) {
-            centroids.push([Math.random() * plane.offsetWidth, Math.random() * plane.offsetHeight]);
-        }
-
-        let clusters = {};
-        let isChanged = true;
-        let distortion = Infinity;
-        while (isChanged) {
-            // очистка кластеров
-            for (let i = 0; i < k; i++) {
-                clusters[i] = [];
+        });
+        function kMeansClustering(dots, k) 
+        {
+            let centroids = [];
+            for (let i = 0; i < k; i++) 
+            {
+                centroids.push([Math.random() * plane.offsetWidth, Math.random() * plane.offsetHeight]);
             }
-
-            // распределение точек по кластерам
-            for (let i = 0; i < dots.length; i++) {
-                let minDist = Infinity;
-                let closestCentroid = null;
-                for (let j = 0; j < k; j++) {
-                    const dist = getDistance(dots[i], centroids[j]);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        closestCentroid = j;
+            let clusters = {};
+            let isChanged = true;
+            let distortion = Infinity;
+            while (isChanged) 
+            {
+                for (let i = 0; i < k; i++) 
+                {
+                    clusters[i] = [];
+                }
+                for (let i = 0; i < dots.length; i++) 
+                {
+                    let minDist = Infinity;
+                    let closestCentroid = null;
+                    for (let j = 0; j < k; j++) 
+                    {
+                        const dist = getDistance(dots[i], centroids[j]);
+                        if (dist < minDist) 
+                        {
+                            minDist = dist;
+                            closestCentroid = j;
+                        }
                     }
+                    clusters[closestCentroid].push(dots[i]);
                 }
-                clusters[closestCentroid].push(dots[i]);
-            }
-
-            // пересчет центроидов
-            isChanged = false;
-            let newDistortion = 0;
-            for (let i = 0; i < k; i++) {
-                const sum = [0, 0];
-                for (let j = 0; j < clusters[i].length; j++) {
-                    sum[0] += clusters[i][j][0];
-                    sum[1] += clusters[i][j][1];
-                }
-                const newCentroid = [sum[0] / clusters[i].length, sum[1] / clusters[i].length];
-                const dist = getDistance(newCentroid, centroids[i]);
-                if (dist > 0.1) {
-                    isChanged = true;
-                }
-                centroids[i] = newCentroid;
-                newDistortion += getDistortion(clusters[i], newCentroid);
-            }
-            if (newDistortion >= distortion) {
                 isChanged = false;
+                let newDistortion = 0;
+                for (let i = 0; i < k; i++) 
+                {
+                    const sum = [0, 0];
+                    for (let j = 0; j < clusters[i].length; j++) 
+                    {
+                        sum[0] += clusters[i][j][0];
+                        sum[1] += clusters[i][j][1];
+                    }
+                    const newCentroid = [sum[0] / clusters[i].length, sum[1] / clusters[i].length];
+                    const dist = getDistance(newCentroid, centroids[i]);
+                    if (dist > 0.1) 
+                    {
+                        isChanged = true;
+                    }
+                    centroids[i] = newCentroid;
+                    newDistortion += getDistortion(clusters[i], newCentroid);
+                }
+                if (newDistortion >= distortion) 
+                {
+                    isChanged = false;
+                }
+                distortion = newDistortion;
             }
-            distortion = newDistortion;
+            return { clusters, centroids };
         }
-
-        return { clusters, centroids };
-    }
-
-    function getDistance(p1, p2) {
-        const dx = p1[0] - p2[0];
-        const dy = p1[1] - p2[1];
-        return Math.sqrt(dx * dx + dy * dy);
-    }
-
-    function getDistortion(cluster, centroid) {
-        let distortion = 0;
-        for (let i = 0; i < cluster.length; i++) {
-            distortion += getDistance(cluster[i], centroid) ** 2;
+        function getDistance(p1, p2) 
+        {
+            const dx = p1[0] - p2[0];
+            const dy = p1[1] - p2[1];
+            return Math.sqrt(dx * dx + dy * dy);
         }
-        return distortion;
-    }
-</script>
-<ul>
-    <li><a href="core.html" target="_blank">Главная</a></li>
-    <li><a href="A.html" target="_blank">A*</a></li>
-    <li><a href="gen.html" target="_blank">Генетический алгоритм</a></li>
-    <li><a href="ant.html" target="_blank">Муравьиный алгоритм</a></li>
-    <li><a href="three.html" target="_blank">Дерево решений</a></li>
-    <li><a href="dec.html" target="_blank">Нейронная сеть</a></li>
-</ul>
+        function getDistortion(cluster, centroid) 
+        {
+            let distortion = 0;
+            for (let i = 0; i < cluster.length; i++) 
+            {
+                distortion += getDistance(cluster[i], centroid) ** 2;
+            }
+            return distortion;
+        }
+    </script>
+    <ul>
+        <li><a href="core.html" target="_blank">Главная</a></li>
+        <li><a href="A.html" target="_blank">A*</a></li>
+        <li><a href="gen.html" target="_blank">Генетический алгоритм</a></li>
+        <li><a href="ant.html" target="_blank">Муравьиный алгоритм</a></li>
+        <li><a href="three.html" target="_blank">Дерево решений</a></li>
+        <li><a href="dec.html" target="_blank">Нейронная сеть</a></li>
+    </ul>
 </body>
 </html>

@@ -1,229 +1,278 @@
 <!DOCTYPE html>
 <html>
-<head>
- <title>Алгоритм A*</title>
- <style>
-  .cell {
-   width: 20px;
-   height: 20px;
-   border: 1px solid black;
-   float: left;
-  }
-  .row {
-   clear: both;
-  }
- </style>
-</head>
-<body>
- <button onclick="findPath()">Найти путь</button>
- <button onclick="clearTable()">Очистить карту</button>
- <button onclick="resizeTable()">Изменить размер</button>
- <br>
- <input type="radio" id="black-radio" name="color" value="black" checked>
- <label for="black-radio">Стрена</label>
- <input type="radio" id="white-radio" name="color" value="white">
- <label for="white-radio">Очистить клетку</label>
- <input type="radio" id="green-radio" name="color" value="green">
- <label for="green-radio">Финиш</label>
- <input type="radio" id="red-radio" name="color" value="red">
- <label for="red-radio">Старт</label>
- <br>
- <script>
-  var size = prompt("Введите размер карты:");
-  var table = document.createElement("table");
-  table.style.borderCollapse = "collapse";
-  for (var i = 0; i < size; i++) {
-   var row = document.createElement("tr");
-   table.appendChild(row);
-   for (var j = 0; j < size; j++) {
-    var cell = document.createElement("td");
-    cell.className = "cell";
-    cell.style.border = "1px solid black";
-    cell.style.width = "20px";
-    cell.style.height = "20px";
-    cell.style.backgroundColor = "";
-    cell.addEventListener("click", function() {
-     var color = "black";
-     if (document.getElementById("green-radio").checked) {
-       color = "green";
-     } else if (document.getElementById("red-radio").checked) {
-       color = "red";
-     } else if (document.getElementById("white-radio").checked) {
-       color = "white";
-     }
-     setCellColor.call(this, color);
-    });
-    row.appendChild(cell);
-   }
-  }
-  document.body.appendChild(table);
-
-  function setCellColor(color) {
-    if (this.style.backgroundColor == color) {
-      this.style.backgroundColor = "";
-    } else {
-      this.style.backgroundColor = color;
-    }
-  }
-  function findPath() {
-    var rows = document.getElementsByTagName("tr");
-  var start, end;
-  var matrix = [];
-  var foundStart = false, foundEnd = false;
-  var colstart = 0, colend = 0;
-  for (var i = 0; i < rows.length; i++) {
-    var cells = rows[i].getElementsByClassName("cell");
-    var row = [];
-    for (var j = 0; j < cells.length; j++) {
-      var cellColor = cells[j].style.backgroundColor;
-      if (cellColor == "black") {
-        row.push(0);
-      } else if (cellColor == "green") {
-        row.push(1);
-        end = {x: j, y: i};
-        foundEnd = true;
-        colend++;
-      } else if (cellColor == "red") {
-        row.push(3);
-        start = {x: j, y: i};
-        foundStart = true;
-        colstart++;
-      } else {
-        row.push(2);
-      }
-    }
-    matrix.push(row);
-  }
-  if (colend > 1 || colstart > 1) {
-    alert("можно выбрать только один старт и финиш");
-    return;
-  }
-  if (!foundEnd && !foundStart) {
-    alert("Выберите старт и финиш");
-    return;
-  }
-  if (!foundStart) {
-    alert("Выберите старт");
-    return;
-  }
-  if (!foundEnd) {
-    alert("Выберите финиш");
-    return;
-  }
-  
-    
-    var openList = [];
-    var closedList = [];
-    var pathFound = false;
-    openList.push({x: start.x, y: start.y, g: 0, h: 0, f: 0, parent: null});
-    while (openList.length > 0) {
-      var current = openList[0];
-      for (var i = 0; i < openList.length; i++) {
-        if (openList[i].f < current.f) {
-          current = openList[i];
-        }
-      }
-      if (current.x == end.x && current.y == end.y) {
-        pathFound = true;
-        break;
-      }
-      openList.splice(openList.indexOf(current), 1);
-      closedList.push(current);
-      var neighbors = [];
-      for (var i = -1; i <= 1; i++) {
-        for (var j = -1; j <= 1; j++) {
-          if (i == 0 && j == 0) {
-            continue;
-          }
-          var neighborX = current.x + j;
-          var neighborY = current.y + i;
-          if (neighborX >= 0 && neighborX < size && neighborY >= 0 && neighborY < size && matrix[neighborY][neighborX] != 0) {
-            var neighborG = current.g + (i == 0 || j == 0 ? 1 : 1.4);
-            var neighborH = Math.sqrt(Math.pow(neighborX - end.x, 2) + Math.pow(neighborY - end.y, 2));
-            var neighborF = neighborG + neighborH;
-            neighbors.push({x: neighborX, y: neighborY, g: neighborG, h: neighborH, f: neighborF, parent: current});
-          }
-        }
-      }
-      for (var i = 0; i < neighbors.length; i++) {
-        var neighbor = neighbors[i];
-        if (closedList.some(function(element) { return element.x == neighbor.x && element.y == neighbor.y })) {
-          continue;
-        }
-        if (openList.some(function(element) { return element.x == neighbor.x && element.y == neighbor.y && element.f < neighbor.f })) {
-          continue;
-        }
-        openList.push(neighbor);
-      }
-    }
-    
-    if (!pathFound) {
-      alert("Путь не найден");
-      return;
-    }
-    
-    var path = [];
-    var current = closedList[closedList.length - 1];
-    while (current.parent != null) {
-      path.push(current);
-      current = current.parent;
-    }
-    path.push(current);
-    
-    for (var i = path.length - 2; i >= 0; i--) {
-      var cell = rows[path[i].y].getElementsByClassName("cell")[path[i].x];
-      cell.style.backgroundColor = "yellow";
-    }
-  }
-  function clearTable() {
-    var cells = document.getElementsByClassName("cell");
-    for (var i = 0; i < cells.length; i++) {
-      cells[i].style.backgroundColor = "";
-    }
-  }
-  function resizeTable() {
-    var newSize = prompt("Введите новый размер карты");
-    if (newSize != null && newSize != "") {
-      size = parseInt(newSize);
-      var table = document.getElementsByTagName("table")[0];
-      table.remove();
-      table = document.createElement("table");
-      table.style.borderCollapse = "collapse";
-      for (var i = 0; i < size; i++) {
-        var row = document.createElement("tr");
-        table.appendChild(row);
-        for (var j = 0; j < size; j++) {
-          var cell = document.createElement("td");
-          cell.className = "cell";
-          cell.style.border = "1px solid black";
-          cell.style.width = "20px";
-          cell.style.height = "20px";
-          cell.style.backgroundColor = "";
-          cell.addEventListener("click", function() {
-            var color = "black";
-            if (document.getElementById("green-radio").checked) {
-              color = "green";
-            } else if (document.getElementById("red-radio").checked) {
-              color = "red";
-            } else if (document.getElementById("white-radio").checked) {
-              color = "white";
+    <head>
+        <title>Алгоритм A*</title>
+        <style>
+            .cell 
+            {
+                width: 20px;
+                height: 20px;
+                border: 1px solid black;
+                float: left;
             }
-            setCellColor.call(this, color);
-          });
-          row.appendChild(cell);
-        }
-      }
-      document.body.appendChild(table);
-    }
-  }
- </script>
- <ul>
-  <li><a href="core.html" target="_blank">Главная</a></li>
-  <li><a href="claster.html" target="_blank">Алгоритм кластеризации</a></li>
-  <li><a href="gen.html" target="_blank">Генетический алгоритм</a></li>
-  <li><a href="ant.html" target="_blank">Муравьиный алгоритм</a></li>
-  <li><a href="three.html" target="_blank">Дерево решений</a></li>
-  <li><a href="dec.html" target="_blank">Нейронная сеть</a></li>
-</ul>
-</body>
+            .row 
+            {
+                clear: both;
+            }
+        </style>
+    </head>
+    <body>
+        <ul>
+            <li><a href="core.html" target="_blank">Главная</a></li>
+            <li><a href="claster.html" target="_blank">Алгоритм кластеризации</a></li>
+            <li><a href="gen.html" target="_blank">Генетический алгоритм</a></li>
+            <li><a href="ant.html" target="_blank">Муравьиный алгоритм</a></li>
+            <li><a href="three.html" target="_blank">Дерево решений</a></li>
+            <li><a href="dec.html" target="_blank">Нейронная сеть</a></li>
+        </ul>
+        <button onclick="findPath()">Найти путь</button>
+        <button onclick="clearTable()">Очистить карту</button>
+        <button onclick="resizeTable()">Изменить размер</button>
+        <br>
+            <input type="radio" id="black-radio" name="color" value="black" checked>
+            <label for="black-radio">Стрена</label>
+            <input type="radio" id="white-radio" name="color" value="white">
+            <label for="white-radio">Очистить клетку</label>
+            <input type="radio" id="green-radio" name="color" value="green">
+            <label for="green-radio">Финиш</label>
+            <input type="radio" id="red-radio" name="color" value="red">
+            <label for="red-radio">Старт</label>
+        <br>
+        <script>
+            var size = prompt("Введите размер карты:");
+            var table = document.createElement("table");
+            table.style.borderCollapse = "collapse";
+            for (let i = 0; i < size; i++) 
+            {
+                var row = document.createElement("tr");
+                table.appendChild(row);
+                for (let j = 0; j < size; j++) 
+                {
+                    var cell = document.createElement("td");
+                    cell.className = "cell";
+                    cell.style.border = "1px solid black";
+                    cell.style.width = "20px";
+                    cell.style.height = "20px";
+                    cell.style.backgroundColor = "";
+                    cell.addEventListener("click", function() 
+                    {
+                        var color = "black";
+                        if (document.getElementById("green-radio").checked) 
+                        {
+                            color = "green";
+                        } 
+                        else if (document.getElementById("red-radio").checked) 
+                        {
+                            color = "red";
+                        } 
+                        else if (document.getElementById("white-radio").checked) 
+                        {
+                            color = "white";
+                        }
+                        setCellColor.call(this, color);
+                    });
+                    row.appendChild(cell);
+                }
+            }
+            document.body.appendChild(table);
+
+            function setCellColor(color) 
+            {
+                if (this.style.backgroundColor == color) 
+                {
+                    this.style.backgroundColor = "";
+                } 
+                else 
+                {
+                    this.style.backgroundColor = color;
+                }
+            }
+            function findPath() 
+            {
+                const rows = document.getElementsByTagName("tr");
+                let start, end;
+                const matrix = [];
+                let foundStart = false, foundEnd = false;
+                let colstart = 0, colend = 0;
+                for (let i = 0; i < rows.length; i++) 
+                {
+                    const cells = rows[i].getElementsByClassName("cell");
+                    const row = [];
+                    for (let j = 0; j < cells.length; j++) 
+                    {
+                        const cellColor = cells[j].style.backgroundColor;
+                        if (cellColor == "black") 
+                        {
+                            row.push(0);
+                        } 
+                        else if (cellColor == "green") 
+                        {
+                            row.push(1);
+                            end = {x: j, y: i};
+                            foundEnd = true;
+                            colend++;
+                        } 
+                        else if (cellColor == "red") 
+                        {
+                            row.push(3);
+                            start = {x: j, y: i};
+                            foundStart = true;
+                            colstart++;
+                        } 
+                        else 
+                        {
+                            row.push(2);
+                        }
+                    }
+                    matrix.push(row);
+                }
+                if (colend > 1 || colstart > 1) 
+                {
+                    alert("можно выбрать только один старт и финиш");
+                    return;
+                }
+                if (!foundEnd && !foundStart) 
+                {
+                    alert("Выберите старт и финиш");
+                    return;
+                }
+                if (!foundStart) 
+                {
+                    alert("Выберите старт");
+                    return;
+                }
+                if (!foundEnd) 
+                {
+                    alert("Выберите финиш");
+                    return;
+                }
+                const openList = [];
+                const closedList = [];
+                let pathFound = false;
+                openList.push({x: start.x, y: start.y, g: 0, h: 0, f: 0, parent: null});
+                while (openList.length > 0) 
+                {
+                    let current = openList[0];
+                    for (let i = 0; i < openList.length; i++) 
+                    {
+                        if (openList[i].f < current.f) 
+                        {
+                            current = openList[i];
+                        }
+                    }
+                    if (current.x == end.x && current.y == end.y) 
+                    {
+                        pathFound = true;
+                        break;
+                    }
+                    openList.splice(openList.indexOf(current), 1);
+                    closedList.push(current);
+                    const neighbors = [];
+                    for (let i = -1; i <= 1; i++) 
+                    {
+                        for (let j = -1; j <= 1; j++) 
+                        {
+                            if (i == 0 && j == 0) 
+                            {
+                                continue;
+                            }
+                            const neighborX = current.x + j;
+                            const neighborY = current.y + i;
+                            if (neighborX >= 0 && neighborX < size && neighborY >= 0 && neighborY < size && matrix[neighborY][neighborX] != 0) 
+                            {
+                                const neighborG = current.g + (i == 0 || j == 0 ? 1 : 1.4);
+                                const neighborH = Math.sqrt(Math.pow(neighborX - end.x, 2) + Math.pow(neighborY - end.y, 2));
+                                const neighborF = neighborG + neighborH;
+                                neighbors.push({x: neighborX, y: neighborY, g: neighborG, h: neighborH, f: neighborF, parent: current});
+                            }
+                        }
+                    }
+                    for (let i = 0; i < neighbors.length; i++) 
+                    {
+                        const neighbor = neighbors[i];
+                        if (closedList.some(function(element) { return element.x == neighbor.x && element.y == neighbor.y })) 
+                        {
+                            continue;
+                        }
+                        if (openList.some(function(element) { return element.x == neighbor.x && element.y == neighbor.y && element.f < neighbor.f })) 
+                        {
+                            continue;
+                        }
+                        openList.push(neighbor);
+                    }
+                }
+                if (!pathFound) 
+                {
+                    alert("Путь не найден");
+                    return;
+                }
+                const path = [];
+                let current = closedList[closedList.length - 1];
+                while (current.parent != null) 
+                {
+                    path.push(current);
+                    current = current.parent;
+                }
+                path.push(current);
+                for (let i = path.length - 2; i >= 0; i--) 
+                {
+                    const cell = rows[path[i].y].getElementsByClassName("cell")[path[i].x];
+                    cell.style.backgroundColor = "yellow";
+                }
+            }
+            function clearTable() 
+            {
+                const cells = document.getElementsByClassName("cell");
+                for (let i = 0; i < cells.length; i++) 
+                {
+                    cells[i].style.backgroundColor = "";
+                }
+            }
+            function resizeTable() 
+            {
+                const newSize = prompt("Введите новый размер карты");
+                if (newSize != null && newSize != "") 
+                {
+                    let size = parseInt(newSize);
+                    const table = document.getElementsByTagName("table")[0];
+                    table.remove();
+                    const newTable = document.createElement("table");
+                    newTable.style.borderCollapse = "collapse";
+                    for (let i = 0; i < size; i++) 
+                    {
+                        const row = document.createElement("tr");
+                        newTable.appendChild(row);
+                        for (let j = 0; j < size; j++) 
+                        {
+                            const cell = document.createElement("td");
+                            cell.className = "cell";
+                            cell.style.border = "1px solid black";
+                            cell.style.width = "20px";
+                            cell.style.height = "20px";
+                            cell.style.backgroundColor = "";
+                            cell.addEventListener("click", function() 
+                            {
+                                let color = "black";
+                                if (document.getElementById("green-radio").checked) 
+                                {
+                                    color = "green";
+                                } 
+                                else if (document.getElementById("red-radio").checked) 
+                                {
+                                    color = "red";
+                                } 
+                                else if (document.getElementById("white-radio").checked) 
+                                {
+                                    color = "white";
+                                }
+                                setCellColor.call(this, color);
+                            });
+                            row.appendChild(cell);
+                        }
+                    }
+                    document.body.appendChild(newTable);
+                }
+            }
+        </script>
+    </body>
 </html>
