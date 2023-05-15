@@ -14,6 +14,22 @@
             {
                 clear: both;
             }
+            #btn 
+        {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: blue;
+            color: white;
+            cursor: pointer;
+        }
+        #btn:hover 
+        {
+            background-color: darkblue;
+        }
+        #btn:active 
+        {
+            background-color: lightblue;
+        }
         </style>
     </head>
     <body>
@@ -25,9 +41,9 @@
             <li><a href="three.html" target="_blank">Дерево решений</a></li>
             <li><a href="dec.html" target="_blank">Нейронная сеть</a></li>
         </ul>
-        <button onclick="findPath()">Найти путь</button>
-        <button onclick="clearTable()">Очистить карту</button>
-        <button onclick="resizeTable()">Изменить размер</button>
+        <button id="btn" onclick="findPath()">Найти путь</button>
+        <button id="btn" onclick="clearTable()">Очистить карту</button>
+        <button id="btn" onclick="resizeTable()">Изменить размер</button>
         <br>
             <input type="radio" id="black-radio" name="color" value="black" checked>
             <label for="black-radio">Стрена</label>
@@ -42,6 +58,8 @@
             var size = prompt("Введите размер карты:");
             var table = document.createElement("table");
             table.style.borderCollapse = "collapse";
+            if (size > 2)
+            {
             for (let i = 0; i < size; i++) 
             {
                 var row = document.createElement("tr");
@@ -75,6 +93,11 @@
                 }
             }
             document.body.appendChild(table);
+            }
+            else 
+            {
+                    alert("Карта должна быть более 2-х клеток в диаметре") 
+            }
 
             function setCellColor(color) 
             {
@@ -230,10 +253,9 @@
             }
             function resizeTable() 
             {
-                const newSize = prompt("Введите новый размер карты");
-                if (newSize != null && newSize != "") 
+                size = prompt("Введите новый размер карты");
+                if (size > 2 && size != "") 
                 {
-                    let size = parseInt(newSize);
                     const table = document.getElementsByTagName("table")[0];
                     table.remove();
                     const newTable = document.createElement("table");
@@ -271,6 +293,10 @@
                         }
                     }
                     document.body.appendChild(newTable);
+                }
+                else
+                {
+                    alert("Карта должна быть более 2-х клеток в диаметре")
                 }
             }
         </script>
